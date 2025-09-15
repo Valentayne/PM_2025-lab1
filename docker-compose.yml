@@ -1,0 +1,24 @@
+services:
+  frontend:
+    image: nginx:alpine
+    container_name: frontend
+    ports:
+      - "80:80"
+    networks:
+      - "front-back-network"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./nginx_conf/nginx.conf:/etc/nginx/conf.d/default.conf
+  backend:
+    build:
+      dockerfile: ./backend/Dockerfile
+    container_name: backend
+    ports:
+      - "5000:5000"
+    networks:
+      - "front-back-network"
+    
+    # To do health check
+networks:
+  front-back-network:
+    driver: bridge
