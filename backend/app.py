@@ -1,7 +1,53 @@
 from flask import Flask, request, jsonify
 import requests
+import psycopg2
+import os
 
 app = Flask(__name__)
+
+def get_connection():
+    return psycopg2.connect(
+        dbname=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASS"),
+        host=os.getenv("DB_HOST"),
+        port=os.getenv("DB_PORT")
+    )
+
+def init_db():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS nameinfo (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100),
+        gender VARCHAR(50),
+        probability FLOAT,
+        countries TEXT,
+        flags TEXT
+    );
+    """)
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+def save_into_db(data):
+    conn = get_connection()
+    cursor = conn.cursor()
+    sql = """
+    INSERT INTO nameinfo (name, gender, probability, countries, flags)
+    VALUES (%s, %s, %s, %s, %s)
+    """
+    cursor.execute(sql, (
+        data["name"],
+        data["gender"],
+        data["probability"],
+        str(data["country"]),
+        str(data["flags"])
+    ))
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 @app.route("/api/nameinfo", methods=["GET"])
 def nameinfo():
@@ -13,16 +59,27 @@ def nameinfo():
         nat_res = requests.get(f"https://api.nationalize.io/?name={name}").json()
         gen_res = requests.get(f"https://api.genderize.io/?name={name}").json()
 
+        flag_array = []
+        for country in nat_res.get("country", []):
+            country_id = country.get("country_id")
+            if country_id:
+                flag_array.append(f"https://flagsapi.com/{country_id}/flat/64.png")
+
         response = {
-            "name": "алекс" if name.lower() == "alex" else name,
+            "name": name,
             "country": nat_res.get("country", []),
             "gender": gen_res.get("gender"),
-            "probability": gen_res.get("probability")
+            "probability": gen_res.get("probability"),
+            "flags": flag_array
         }
+
+        save_into_db(response)
+
         return jsonify(response)
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
-
+    init_db()
+    app.run(host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", 5000)), debug=True)
