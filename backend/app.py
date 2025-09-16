@@ -80,6 +80,33 @@ def nameinfo():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/data", methods=["GET"])
+def get_data():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, name, gender, probability, countries, flags FROM nameinfo")
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        data = []
+        for row in rows:
+            data.append({
+                "id": row[0],
+                "name": row[1],
+                "gender": row[2],
+                "probability": row[3],
+                "countries": row[4],
+                "flags": row[5]
+            })
+
+        return jsonify(data)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     init_db()
     app.run(host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", 5000)), debug=True)

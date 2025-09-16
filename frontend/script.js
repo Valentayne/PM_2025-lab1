@@ -22,3 +22,7 @@ async function fetchData() {
   html += `</ul>`;
   document.getElementById("result").innerHTML = html;
 }
+document.getElementById("dbButton").addEventListener("click", () => {
+  window.open("/api/data", "_blank");
+});
+
