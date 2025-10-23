@@ -14,6 +14,6 @@ COPY --from=builder /usr/local/lib/python3.13 /usr/local/lib/python3.13
 
 COPY backend/ .  
 
-EXPOSE 5000
+EXPOSE 10500
 
 CMD ["python", "app.py"]
