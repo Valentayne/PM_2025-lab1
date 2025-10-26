@@ -11,9 +11,9 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: testdb
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: mydb
+          POSTGRES_USER: myuser
+          POSTGRES_PASSWORD: mypassword
         ports:
           - 5432:5432
         options: >-
@@ -49,9 +49,9 @@ jobs:
         env:
           HOST: 0.0.0.0
           PORT: 10500
-          DB_NAME: testdb
-          DB_USER: testuser
-          DB_PASS: testpass
+          DB_NAME: mydb
+          DB_USER: myuser
+          DB_PASS: mypassword
           DB_HOST: localhost
           DB_PORT: 5432
         run: |
