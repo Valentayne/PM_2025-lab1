@@ -57,10 +57,3 @@ jobs:
         run: |
           cd backend
           pytest --cov=. --cov-report=xml --cov-report=term || echo "No tests found"
-
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v3
-        if: always()
-        with:
-          file: ./backend/coverage.xml
-          fail_ci_if_error: false
