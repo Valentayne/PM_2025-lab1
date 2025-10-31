@@ -38,7 +38,7 @@ jobs:
 
     - name: Build and start services
       run: |
-        docker-compose -f docker-compose.yml up --build -d
+        docker compose -f docker-compose.yml up --build -d
 
     - name: Wait for services
       run: sleep 20
@@ -47,16 +47,16 @@ jobs:
       if: always()
       run: |
         echo "=== Frontend logs ==="
-        docker-compose logs --tail=30 frontend
+        docker compose logs --tail=30 frontend
         echo ""
         echo "=== Backend logs ==="
-        docker-compose logs --tail=30 backend
+        docker compose logs --tail=30 backend
         echo ""
         echo "=== Database logs ==="
-        docker-compose logs --tail=30 database
+        docker compose logs --tail=30 database
 
     - name: Check database
-      run: docker-compose exec -T database pg_isready -U myuser -d mydb
+      run: docker compose exec -T database pg_isready -U myuser -d mydb
 
     - name: Check frontend availability
       run: curl -f http://localhost:80 || exit 1
@@ -66,8 +66,8 @@ jobs:
 
     - name: Show logs on failure
       if: failure()
-      run: docker-compose logs --tail=50
+      run: docker compose logs --tail=50
 
     - name: Cleanup
       if: always()
-      run: docker-compose down -v
+      run: docker compose down -v
