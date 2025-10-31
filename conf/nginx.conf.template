@@ -1,0 +1,17 @@
+events {}
+
+http {
+    server {
+        listen ${NGINX_PORT};
+        server_name localhost;
+
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+        }
+
+        location /api/ {
+            proxy_pass http://${BACKEND_HOST}:${PORT}/api/;
+        }
+    }
+}
