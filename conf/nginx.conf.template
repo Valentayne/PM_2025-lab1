@@ -1,9 +1,33 @@
-events {}
+events {
+    worker_connections 1024;
+}
 
 http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
     server {
         listen ${NGINX_PORT};
         server_name localhost;
+
+        location ~* \.html$ {
+            root /usr/share/nginx/html;
+            add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate";
+            add_header Pragma "no-cache";
+            expires 0;
+        }
+
+        location ~* \.(css|js)$ {
+            root /usr/share/nginx/html;
+            add_header Cache-Control "no-cache, must-revalidate";
+            expires 1h;
+        }
+
+        location ~* \.(jpg|jpeg|png|gif|ico|svg|webp)$ {
+            root /usr/share/nginx/html;
+            expires 7d;
+            add_header Cache-Control "public, immutable";
+        }
 
         location / {
             root /usr/share/nginx/html;
