@@ -3,17 +3,19 @@ FROM python:3.13-alpine AS builder
 WORKDIR /app
 
 COPY backend/requirements.txt requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
-COPY backend/ .  
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir gunicorn
+
+COPY backend/ .
 
 FROM python:3.13-alpine
 
 WORKDIR /app
 
-COPY --from=builder /usr/local/lib/python3.13 /usr/local/lib/python3.13
+COPY --from=builder /usr/local /usr/local
 
-COPY backend/ .  
+COPY backend/ .
 
-#EXPOSE 10500
+ENV PORT=10500
 
-CMD ["python", "app.py"]
+CMD ["sh", "-c", "gunicorn -w 4 -b 0.0.0.0:${PORT} wsgi:app"]

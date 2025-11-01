@@ -107,6 +107,6 @@ def get_data():
         return jsonify({"error": str(e)}), 500
 
 
-if __name__ == "__main__":
-    init_db()
-    app.run(host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", os.getenv("PORT"))), debug=True)
+# if __name__ == "__main__":
+#     init_db()
+#     app.run(host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", os.getenv("PORT"))), debug=True)
