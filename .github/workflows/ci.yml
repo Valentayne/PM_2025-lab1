@@ -43,11 +43,28 @@ jobs:
           timeout 60s bash -c 'until docker compose ps database | grep -q "healthy"; do sleep 2; echo "Waiting..."; done'
           echo "PostgreSQL is ready!"
 
-      # - name: Wait for backend to be ready
-      #   run: |
-      #     echo "Waiting for backend to be healthy..."
-      #     timeout 90s bash -c 'until docker compose ps backend | grep -q "healthy"; do sleep 2; echo "Waiting..."; done'
-      #     echo "Backend is ready!"
+      - name: Check backend logs
+        run: |
+          echo "=== Backend logs ==="
+          docker compose logs backend
+          echo ""
+
+      - name: Wait for backend to be ready
+        run: |
+          echo "Waiting for backend to be healthy..."
+          for i in {1..60}; do
+            STATUS=$(docker compose ps backend --format json | jq -r '.[0].Health')
+            echo "Attempt $i/60: Backend health status: $STATUS"
+            if [[ "$STATUS" == "healthy" ]]; then
+              echo "✓ Backend is ready!"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "✗ Backend failed to become healthy after 180 seconds"
+          echo "=== Final backend logs ==="
+          docker compose logs backend
+          exit 1
 
       - name: Wait for frontend to start
         run: |
