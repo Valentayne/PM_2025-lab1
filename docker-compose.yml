@@ -16,25 +16,32 @@ services:
     command: /bin/sh -c "envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     
   backend:
-      build:
-        dockerfile: ./backend/Dockerfile
-      container_name: backend
-      ports:
-        - "${PORT}:${PORT}"
-      environment:
-        - HOST=${HOST}
-        - PORT=${PORT}
-        - DB_NAME=${DB_NAME}
-        - DB_USER=${DB_USER}
-        - DB_PASS=${DB_PASS}
-        - DB_HOST=${DB_HOST}
-        - DB_PORT=${DB_PORT}
-      networks:
-        - front-back-network
-        - backside-network
-      depends_on:
-        database:
-          condition: service_healthy
+    build:
+      dockerfile: ./backend/Dockerfile
+    container_name: backend
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      - HOST=${HOST}
+      - PORT=${PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+    networks:
+      - front-back-network
+      - backside-network
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:${PORT}/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+
 
   database:
     image: postgres:15

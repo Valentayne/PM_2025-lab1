@@ -42,21 +42,8 @@ jobs:
 
     - name: Wait for backend healthcheck
       run: |
-        for i in {1..45}; do
-          STATUS=$(docker compose ps --format json backend | jq -r '.[0].Health')
-          
-          if [ "$STATUS" = "healthy" ]; then
-            echo "Backend is healthy!"
-            exit 0
-          fi
-
-          echo "Waiting for backend to become healthy... ($i/45)"
-          sleep 2
-        done
-
-        echo "Backend did not become healthy in time"
-        docker compose logs backend
-        exit 1
+        echo "Waiting for backend to become healthy..."
+        docker compose wait backend || (docker compose logs backend && exit 1)
 
     - name: Check container logs
       if: always()
@@ -77,7 +64,7 @@ jobs:
       run: curl -f http://localhost:80 || exit 1
 
     - name: Check backend availability  
-      run: curl -f http://localhost:10500/api/nameinfo || exit 1
+      run: curl -f http://localhost:10500/health || exit 1
 
     - name: Show logs on failure
       if: failure()
