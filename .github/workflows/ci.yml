@@ -36,6 +36,9 @@ jobs:
         BACKEND_HOST=backend
         EOF
 
+    - name: Reset database (remove old volumes)
+      run: docker compose down -v || true
+
     - name: Build and start services
       run: |
         docker compose -f docker-compose.yml up --build -d
@@ -65,6 +68,9 @@ jobs:
 
     - name: Check backend availability  
       run: curl -f http://localhost:10500/health || exit 1
+
+    - name: Show backend logs
+      run: docker compose logs backend
 
     - name: Show logs on failure
       if: failure()
