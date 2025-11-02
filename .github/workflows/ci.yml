@@ -1,81 +1,92 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
-  test:
-    runs-on: ubuntu-22.04
+  build-and-test:
+    runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          # Flask
+          HOST=0.0.0.0
+          PORT=10500
+          # Postgres
+          DB_NAME=mydb
+          DB_USER=myuser
+          DB_PASS=mypassword
+          DB_HOST=database
+          DB_PORT=5432
+          # Nginx
+          NGINX_PORT=80
+          BACKEND_HOST=backend
+          EOF
 
-    - name: Create .env file
-      run: |
-        cat > .env << EOF
-        # Flask
-        HOST=0.0.0.0
-        PORT=10500
-        
-        # Postgres
-        DB_NAME=mydb
-        DB_USER=myuser
-        DB_PASS=mypassword
-        DB_HOST=database
-        DB_PORT=5432
-        
-        # Nginx
-        NGINX_PORT=80
-        BACKEND_HOST=backend
-        EOF
+      - name: Build Docker images
+        run: docker compose build
 
-    - name: Reset database (remove old volumes)
-      run: docker compose down -v || true
+      - name: Start services
+        run: docker compose up -d
 
-    - name: Build and start services
-      run: |
-        docker compose -f docker-compose.yml up --build -d
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          echo "Waiting for PostgreSQL to be healthy..."
+          timeout 60s bash -c 'until docker compose ps database | grep -q "healthy"; do sleep 2; echo "Waiting..."; done'
+          echo "PostgreSQL is ready!"
 
-    # - name: Wait for backend healthcheck
-    #   run: |
-    #     echo "Waiting for backend to become healthy..."
-    #     docker compose wait backend || (docker compose logs backend && exit 1)
+      - name: Wait for backend to be ready
+        run: |
+          echo "Waiting for backend to be healthy..."
+          timeout 90s bash -c 'until docker compose ps backend | grep -q "healthy"; do sleep 2; echo "Waiting..."; done'
+          echo "Backend is ready!"
 
-    - name: Check container logs
-      if: always()
-      run: |
-        echo "=== Frontend logs ==="
-        docker compose logs --tail=30 frontend
-        echo ""
-        echo "=== Backend logs ==="
-        docker compose logs --tail=30 backend
-        echo ""
-        echo "=== Database logs ==="
-        docker compose logs --tail=30 database
+      - name: Wait for frontend to start
+        run: |
+          echo "Waiting for frontend to be ready..."
+          sleep 5
+          timeout 30s bash -c 'until curl -fs http://localhost:80 > /dev/null 2>&1; do sleep 2; echo "Waiting..."; done'
+          echo "Frontend is ready!"
 
-    - name: Check database
-      run: docker compose exec -T database pg_isready -U myuser -d mydb
+      - name: Show running containers
+        run: docker compose ps
 
-    - name: Check frontend availability
-      run: curl -f http://localhost:80 || exit 1
+      - name: Test backend health endpoint
+        run: |
+          echo "Testing backend health endpoint..."
+          curl -f http://localhost:10500/health
+          echo "✓ Backend health check passed!"
 
-    - name: Check backend availability  
-      run: curl -f http://localhost:10500/health || exit 1
+      - name: Test frontend
+        run: |
+          echo "Testing frontend..."
+          curl -f http://localhost:80
+          echo "✓ Frontend is accessible!"
 
-    - name: Show backend logs
-      run: docker compose logs backend
+      - name: Show container logs on failure
+        if: failure()
+        run: |
+          echo "=== Docker Compose Services ==="
+          docker compose ps
+          echo ""
+          echo "=== Database logs ==="
+          docker compose logs database
+          echo ""
+          echo "=== Backend logs ==="
+          docker compose logs backend
+          echo ""
+          echo "=== Frontend logs ==="
+          docker compose logs frontend
 
-    - name: Show logs on failure
-      if: failure()
-      run: docker compose logs --tail=50
-
-    - name: Cleanup
-      if: always()
-      run: docker compose down -v
+      - name: Cleanup
+        if: always()
+        run: |
+          docker compose down -v
