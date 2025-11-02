@@ -40,41 +40,19 @@ jobs:
       run: docker compose down -v || true
 
     - name: Build and start services
+      run: docker compose up --build -d
+
+    - name: Wait for backend healthcheck
       run: |
-        docker compose -f docker-compose.yml up --build -d
-
-    # - name: Wait for backend healthcheck
-    #   run: |
-    #     echo "Waiting for backend to become healthy..."
-    #     docker compose wait backend || (docker compose logs backend && exit 1)
-
-    - name: Check container logs
-      if: always()
-      run: |
-        echo "=== Frontend logs ==="
-        docker compose logs --tail=30 frontend
-        echo ""
-        echo "=== Backend logs ==="
-        docker compose logs --tail=30 backend
-        echo ""
-        echo "=== Database logs ==="
-        docker compose logs --tail=30 database
-
-    - name: Check database
-      run: docker compose exec -T database pg_isready -U myuser -d mydb
-
-    - name: Check frontend availability
-      run: curl -f http://localhost:80 || exit 1
+        echo "Waiting for backend to become healthy..."
+        docker compose wait backend || (docker compose logs backend && exit 1)
 
     - name: Check backend availability  
       run: curl -f http://localhost:10500/health || exit 1
 
-    - name: Show backend logs
-      run: docker compose logs backend
-
-    - name: Show logs on failure
-      if: failure()
-      run: docker compose logs --tail=50
+    - name: Check logs (always)
+      if: always()
+      run: docker compose logs --tail=100
 
     - name: Cleanup
       if: always()

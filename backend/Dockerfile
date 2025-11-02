@@ -16,6 +16,6 @@ COPY --from=builder /usr/local /usr/local
 
 COPY backend/ .
 
-ENV PORT=10500
+#ENV PORT=10500
 
-CMD ["sh", "-c", "python3 -c 'from app import init_db; init_db()' && gunicorn -w 4 -b 0.0.0.0:${PORT} wsgi:app"]
+CMD sh -c "python3 -c 'from app import init_db; init_db()' && gunicorn -w 4 -b 0.0.0.0:${PORT} wsgi:app"

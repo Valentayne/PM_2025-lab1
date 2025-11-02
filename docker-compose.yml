@@ -38,8 +38,8 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "curl -fs http://localhost:${PORT}/health || exit 1"]
       interval: 5s
+      retries: 25
       timeout: 3s
-      retries: 20
 
   database:
     image: postgres:15
