@@ -43,9 +43,7 @@ jobs:
       run: docker compose up --build -d
 
     - name: Wait for backend healthcheck
-      run: |
-        echo "Waiting for backend to become healthy..."
-        docker compose wait backend || (docker compose logs backend && exit 1)
+      run: docker compose wait backend
 
     - name: Check backend availability  
       run: curl -f http://localhost:10500/health || exit 1
