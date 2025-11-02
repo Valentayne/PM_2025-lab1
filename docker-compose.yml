@@ -41,8 +41,6 @@ services:
       timeout: 3s
       retries: 20
 
-
-
   database:
     image: postgres:15
     restart: unless-stopped

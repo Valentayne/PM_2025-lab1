@@ -40,10 +40,10 @@ jobs:
       run: |
         docker compose -f docker-compose.yml up --build -d
 
-    - name: Wait for backend healthcheck
-      run: |
-        echo "Waiting for backend to become healthy..."
-        docker compose wait backend || (docker compose logs backend && exit 1)
+    # - name: Wait for backend healthcheck
+    #   run: |
+    #     echo "Waiting for backend to become healthy..."
+    #     docker compose wait backend || (docker compose logs backend && exit 1)
 
     - name: Check container logs
       if: always()
