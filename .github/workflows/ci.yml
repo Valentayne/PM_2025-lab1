@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ deploy ]     # деплой-код пушимо в deploy
   pull_request:
-    branches: [ main ]
+    branches: [ main ]       # PR і тести залишаються по main
 
 jobs:
   test:
@@ -17,43 +17,12 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
     
-    # - name: Create .env file
-    #   run: |
-    #     cat > .env << EOF
-    #     # Flask
-    #     HOST=0.0.0.0
-    #     PORT=10500
-        
-    #     # Postgres
-    #     DB_NAME=mydb
-    #     DB_USER=myuser
-    #     DB_PASS=mypassword
-    #     DB_HOST=database
-    #     DB_PORT=5432
-        
-    #     # Nginx
-    #     NGINX_PORT=80
-    #     BACKEND_HOST=backend
-    #     EOF
-    
     - name: Build and start services
       run: |
         docker compose -f docker-compose.yml up --build -d
     
     - name: Wait for services to initialize
       run: sleep 20
-    
-    - name: Check container logs
-      if: always()
-      run: |
-        echo "=== Frontend logs ==="
-        docker compose logs --tail=30 frontend
-        echo ""
-        echo "=== Backend logs ==="
-        docker compose logs --tail=30 backend
-        echo ""
-        echo "=== Database logs ==="
-        docker compose logs --tail=30 database
     
     - name: Check database
       run: docker compose exec -T database pg_isready -U myuser -d mydb
@@ -64,10 +33,35 @@ jobs:
     - name: Check backend availability
       run: curl -f http://localhost:10500/health || exit 1
     
-    - name: Show logs on failure
-      if: failure()
-      run: docker compose logs --tail=50
-    
     - name: Cleanup
       if: always()
       run: docker compose down -v
+
+
+  deploy:
+    needs: test                       # виконується тільки після успішного test
+    runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/deploy' && github.event_name == 'push'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Configure Docker for Artifact Registry
+      run: |
+        gcloud auth configure-docker ${GCP_REGION}-docker.pkg.dev
+
+    - name: Build docker images
+      run: |
+        docker build -t ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPOSITORY}/frontend:latest ./frontend
+        docker build -t ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPOSITORY}/backend:latest ./backend
+
+    - name: Push docker images
+      run: |
+        docker push ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPOSITORY}/frontend:latest
+        docker push ${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT}/${GCP_REPOSITORY}/backend:latest
