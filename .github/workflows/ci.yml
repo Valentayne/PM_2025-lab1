@@ -22,7 +22,7 @@ jobs:
         cat > .env << EOF
         # Flask
         HOST=0.0.0.0
-        PORT=10500
+        BACKEND_PORT=10500
 
         # Postgres
         DB_NAME=${{ secrets.DB_NAME }}
