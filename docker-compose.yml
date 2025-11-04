@@ -17,7 +17,7 @@ services:
     
   backend:
     build:
-      dockerfile: ./backend/Dockerfile
+      dockerfile: ./backend/Dockerfile_compose
     container_name: backend
     ports:
       - "${PORT}:${PORT}"
