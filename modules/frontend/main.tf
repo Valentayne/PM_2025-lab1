@@ -12,9 +12,6 @@ resource "google_cloud_run_service" "frontend" {
           value = var.backend_url
         }
 
-        ports {
-          container_port = var.nginx_port
-        }
       }
     }
   }
