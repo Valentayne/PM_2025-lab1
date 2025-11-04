@@ -58,7 +58,7 @@ jobs:
       run: docker compose down -v
 
   deploy:
-    needs: deploy                       
+    needs: test                       
     runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/deploy' && github.event_name == 'push'
 
