@@ -5,7 +5,7 @@ resource "google_cloud_run_service" "frontend" {
   template {
     spec {
       containers {
-        image = var.artifact_registry
+        image = "${var.artifact_registry}/frontend:latest"
 
         env {
           name  = "BACKEND_URL"

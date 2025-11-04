@@ -11,7 +11,7 @@ resource "google_cloud_run_service" "backend" {
 
     spec {
       containers {
-        image = var.artifact_registry
+        image = "${var.artifact_registry}/backend:latest"
 
         env {
           name  = "DB_NAME"
@@ -31,11 +31,6 @@ resource "google_cloud_run_service" "backend" {
         env {
           name  = "DB_HOST"
           value = var.db_host
-        }
-
-        env {
-          name  = "PORT"
-          value = tostring(var.backend_port)
         }
 
         ports {
