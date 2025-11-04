@@ -7,9 +7,10 @@ resource "google_cloud_run_service" "frontend" {
       containers {
         image = var.artifact_registry
 
-        env = [
-          { name = "BACKEND_URL", value = var.backend_url }
-        ]
+        env {
+          name  = "BACKEND_URL"
+          value = var.backend_url
+        }
 
         ports {
           container_port = var.nginx_port
@@ -22,4 +23,8 @@ resource "google_cloud_run_service" "frontend" {
     percent         = 100
     latest_revision = true
   }
+}
+
+output "frontend_url" {
+  value = google_cloud_run_service.frontend.status[0].url
 }

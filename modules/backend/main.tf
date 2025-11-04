@@ -13,13 +13,30 @@ resource "google_cloud_run_service" "backend" {
       containers {
         image = var.artifact_registry
 
-        env = [
-          { name = "DB_NAME",  value = var.db_name },
-          { name = "DB_USER",  value = var.db_user },
-          { name = "DB_PASS",  value = var.db_password },
-          { name = "DB_HOST",  value = var.db_host },
-          { name = "PORT",     value = tostring(var.backend_port) },
-        ]
+        env {
+          name  = "DB_NAME"
+          value = var.db_name
+        }
+
+        env {
+          name  = "DB_USER"
+          value = var.db_user
+        }
+
+        env {
+          name  = "DB_PASS"
+          value = var.db_password
+        }
+
+        env {
+          name  = "DB_HOST"
+          value = var.db_host
+        }
+
+        env {
+          name  = "PORT"
+          value = tostring(var.backend_port)
+        }
 
         ports {
           container_port = var.backend_port

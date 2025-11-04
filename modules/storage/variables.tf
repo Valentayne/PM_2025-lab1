@@ -1,3 +1,11 @@
+variable "project_id" {
+  type = string
+}
+
+variable "region" {
+  type = string
+}
+
 variable "db_name" {
   type = string
 }
@@ -16,13 +24,5 @@ variable "db_tier" {
 }
 
 variable "private_network" {
-  type = string
-}
-
-variable "project_id" {
-  type = string
-}
-
-variable "region" {
   type = string
 }
