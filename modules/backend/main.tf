@@ -1,0 +1,39 @@
+resource "google_cloud_run_service" "backend" {
+  name     = "backend"
+  location = var.region
+
+  template {
+    metadata {
+      annotations = {
+        "run.googleapis.com/vpc-access-connector" = var.vpc_connector_id
+      }
+    }
+
+    spec {
+      containers {
+        image = var.artifact_registry
+
+        env = [
+          { name = "DB_NAME",  value = var.db_name },
+          { name = "DB_USER",  value = var.db_user },
+          { name = "DB_PASS",  value = var.db_password },
+          { name = "DB_HOST",  value = var.db_host },
+          { name = "PORT",     value = tostring(var.backend_port) },
+        ]
+
+        ports {
+          container_port = var.backend_port
+        }
+      }
+    }
+  }
+
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+}
+
+output "backend_url" {
+  value = google_cloud_run_service.backend.status[0].url
+}
