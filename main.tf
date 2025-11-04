@@ -83,6 +83,7 @@ module "frontend" {
   nginx_port        = var.nginx_port
   backend_url       = module.backend.backend_url
   artifact_registry = module.network.artifact_registry_url
+  backend_port      = var.backend_port
 
   depends_on = [
     google_project_service.required_apis,

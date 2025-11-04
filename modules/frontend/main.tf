@@ -1,8 +1,11 @@
+# modules/frontend/main.tf
+# Service Account для Frontend Cloud Run
 resource "google_service_account" "frontend_sa" {
   account_id   = "frontend-cloudrun-sa"
   display_name = "Frontend Cloud Run Service Account"
 }
 
+# Cloud Run Frontend Service
 resource "google_cloud_run_v2_service" "frontend" {
   name     = "frontend-service"
   location = var.region
@@ -18,18 +21,8 @@ resource "google_cloud_run_v2_service" "frontend" {
       }
       
       env {
-        name  = "PORT"
-        value = tostring(var.nginx_port)
-      }
-      
-      env {
         name  = "BACKEND_HOST"
         value = var.backend_url
-      }
-      
-      env {
-        name  = "BACKEND_PORT"
-        value = tostring(var.backend_port)
       }
       
       resources {
@@ -63,6 +56,7 @@ resource "google_cloud_run_v2_service" "frontend" {
   }
 }
 
+# Публічний доступ до Frontend
 resource "google_cloud_run_v2_service_iam_member" "frontend_public" {
   name     = google_cloud_run_v2_service.frontend.name
   location = google_cloud_run_v2_service.frontend.location
