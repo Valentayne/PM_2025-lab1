@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ deploy ]     # деплой-код пушимо в deploy
+    branches: [ deploy ]
   pull_request:
-    branches: [ main ]       # PR і тести залишаються по main
+    branches: [ main ]     
 
 jobs:
   test:
@@ -39,7 +39,7 @@ jobs:
 
 
   deploy:
-    needs: test                       # виконується тільки після успішного test
+    needs: test                       
     runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/deploy' && github.event_name == 'push'
 
