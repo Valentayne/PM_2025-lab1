@@ -10,7 +10,7 @@ services:
       - "front-back-network"
     volumes:
       - ./frontend:/usr/share/nginx/html
-      - ./conf/nginx.conf.template:/etc/nginx/nginx.conf.template
+      - ./frontend/conf/nginx.conf.template:/etc/nginx/nginx.conf.template
     env_file:
       - .env
     command: /bin/sh -c "envsubst < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
