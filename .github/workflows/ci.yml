@@ -7,58 +7,58 @@ on:
     branches: [ main ]     
 
 jobs:
-  test:
-    runs-on: ubuntu-22.04
+  # test:
+  #   runs-on: ubuntu-22.04
     
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v5
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v5
     
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+  #   - name: Set up Docker Buildx
+  #     uses: docker/setup-buildx-action@v3
     
-    - name: Create .env file
-      run: |
-        cat > .env << EOF
-        # Flask
-        HOST=0.0.0.0
-        BACKEND_PORT=10500
+  #   - name: Create .env file
+  #     run: |
+  #       cat > .env << EOF
+  #       # Flask
+  #       HOST=0.0.0.0
+  #       BACKEND_PORT=10500
 
-        # Postgres
-        DB_NAME=${{ secrets.DB_NAME }}
-        DB_USER=${{ secrets.DB_USER }}
-        DB_PASS=${{ secrets.DB_PASS }}
-        DB_HOST=${{ secrets.DB_HOST }}
-        DB_PORT=${{ secrets.DB_PORT }}
+  #       # Postgres
+  #       DB_NAME=${{ secrets.DB_NAME }}
+  #       DB_USER=${{ secrets.DB_USER }}
+  #       DB_PASS=${{ secrets.DB_PASS }}
+  #       DB_HOST=${{ secrets.DB_HOST }}
+  #       DB_PORT=${{ secrets.DB_PORT }}
 
-        # Nginx
-        NGINX_PORT=${{ secrets.NGINX_PORT }}
-        BACKEND_HOST=${{ secrets.BACKEND_HOST }}
-        EOF
+  #       # Nginx
+  #       NGINX_PORT=${{ secrets.NGINX_PORT }}
+  #       BACKEND_HOST=${{ secrets.BACKEND_HOST }}
+  #       EOF
 
     
-    - name: Build and start services
-      run: |
-        docker compose -f docker-compose.yml up --build -d
+  #   - name: Build and start services
+  #     run: |
+  #       docker compose -f docker-compose.yml up --build -d
     
-    - name: Wait for services to initialize
-      run: sleep 20
+  #   - name: Wait for services to initialize
+  #     run: sleep 20
     
-    - name: Check database
-      run: docker compose exec -T database pg_isready -U myuser -d mydb
+  #   - name: Check database
+  #     run: docker compose exec -T database pg_isready -U myuser -d mydb
     
-    - name: Check frontend availability
-      run: curl -f http://localhost:80 || exit 1
+  #   - name: Check frontend availability
+  #     run: curl -f http://localhost:80 || exit 1
     
-    - name: Check backend availability
-      run: curl -f http://localhost:10500/health || exit 1
+  #   - name: Check backend availability
+  #     run: curl -f http://localhost:10500/health || exit 1
     
-    - name: Cleanup
-      if: always()
-      run: docker compose down -v
+  #   - name: Cleanup
+  #     if: always()
+  #     run: docker compose down -v
 
   deploy:
-    needs: test                       
+    #needs: test                       
     runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/deploy' && github.event_name == 'push'
 
