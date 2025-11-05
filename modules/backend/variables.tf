@@ -30,3 +30,8 @@ variable "vpc_connector_id" {
 variable "artifact_registry" {
   type = string
 }
+
+variable "db_port" {
+  type    = string
+  default = "5432"
+}

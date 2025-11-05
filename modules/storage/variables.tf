@@ -23,6 +23,11 @@ variable "db_tier" {
   type = string
 }
 
-variable "private_network" {
+variable "db_port" {
+  type    = string
+  default = "5432"
+}
+
+variable "private_network_id" {
   type = string
 }

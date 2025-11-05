@@ -39,19 +39,20 @@ module "network" {
 module "storage" {
   source = "./modules/storage"
 
-  project_id      = var.project_id
-  region          = var.region
-  db_name         = var.db_name
-  db_user         = var.db_user
-  db_password     = var.db_password
-  db_tier         = var.db_tier
-  private_network = module.network.private_network_id
+  project_id          = var.project_id
+  region              = var.region
+  db_name             = var.db_name
+  db_user             = var.db_user
+  db_password         = var.db_password
+  db_tier             = var.db_tier
+  private_network_id  = module.network.network_id
 
   depends_on = [
     google_project_service.required_apis,
     module.network
   ]
 }
+
 
 # Backend Module
 module "backend" {
@@ -62,7 +63,8 @@ module "backend" {
   db_name           = var.db_name
   db_user           = var.db_user
   db_password       = var.db_password
-  db_host           = module.storage.database_private_ip
+  db_port           = var.db_port
+  db_host          = module.storage.database_private_ip
   vpc_connector_id  = module.network.vpc_connector_id
   artifact_registry = module.network.artifact_registry_url
 
@@ -82,7 +84,7 @@ module "frontend" {
   nginx_port        = var.nginx_port
   backend_url       = module.backend.backend_url
   artifact_registry = module.network.artifact_registry_url
-  
+
   depends_on = [
     google_project_service.required_apis,
     module.network,

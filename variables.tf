@@ -23,6 +23,9 @@ variable "db_tier" {
   type = string
 }
 
+variable "db_port" {
+  type = string
+}
 
 variable "nginx_port" {
   type = number
