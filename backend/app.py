@@ -111,8 +111,12 @@ def health():
     return "OK", 200
 @app.route("/init-db", methods=["POST"])
 def init_route():
-    init_db()
-    return "DB initialized!", 200
+    try:
+        init_db()
+        return {"status": "ok", "message": "Database initialized"}, 200
+    except Exception as e:
+        return {"status": "error", "message": str(e)}, 500
+
 
 
 # if __name__ == "__main__":
