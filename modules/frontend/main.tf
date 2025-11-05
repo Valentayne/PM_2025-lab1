@@ -16,6 +16,10 @@ resource "google_cloud_run_v2_service" "frontend" {
     containers {
       image = "${var.artifact_registry}/frontend:latest"
       
+      env {
+        name  = "BACKEND_URL"
+        value = var.backend_url
+      }
       ports {
         container_port = var.nginx_port
       }

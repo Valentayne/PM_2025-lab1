@@ -1,8 +1,9 @@
 async function fetchData() {
   const name = document.getElementById("nameInput").value;
   if (!name) return;
+  const backend = window.BACKEND_URL;
 
-  const res = await fetch(`/api/nameinfo?name=${name}`);
+  const res = await fetch(`${backend}/api/nameinfo?name=${name}`);
   const data = await res.json();
 
   let html = `<p><strong>Name:</strong> ${data.name}</p>`;
