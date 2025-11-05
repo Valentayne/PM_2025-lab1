@@ -15,7 +15,9 @@ WORKDIR /app
 COPY --from=builder /usr/local /usr/local
 
 COPY . .
-RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+RUN chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
+
 
