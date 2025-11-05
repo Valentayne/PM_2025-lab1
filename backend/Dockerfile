@@ -15,5 +15,7 @@ WORKDIR /app
 COPY --from=builder /usr/local /usr/local
 
 COPY . .
+RUN chmod +x /entrypoint.sh
 
-CMD gunicorn -w 4 -b 0.0.0.0:$PORT wsgi:app
+ENTRYPOINT ["/entrypoint.sh"]
+
