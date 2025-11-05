@@ -1,9 +1,15 @@
 async function fetchData() {
   const name = document.getElementById("nameInput").value;
   if (!name) return;
-  const backend = window.BACKEND_URL;
 
+  const backend = window.BACKEND_URL || "";
   const res = await fetch(`${backend}/api/nameinfo?name=${name}`);
+
+  if (!res.ok) {
+    document.getElementById("result").innerHTML = `<p style="color:red;">Server error (${res.status})</p>`;
+    return;
+  }
+
   const data = await res.json();
 
   let html = `<p><strong>Name:</strong> ${data.name}</p>`;
@@ -23,7 +29,8 @@ async function fetchData() {
   html += `</ul>`;
   document.getElementById("result").innerHTML = html;
 }
-document.getElementById("dbButton").addEventListener("click", () => {
-  window.open("/api/data", "_blank");
-});
 
+document.getElementById("dbButton").addEventListener("click", () => {
+  const backend = window.BACKEND_URL || "";
+  window.open(`${backend}/api/data`, "_blank");
+});

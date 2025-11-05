@@ -24,11 +24,6 @@ resource "google_cloud_run_v2_service" "frontend" {
         container_port = var.nginx_port
       }
       
-      env {
-        name  = "BACKEND_HOST"
-        value = var.backend_url
-      }
-      
       resources {
         limits = {
           cpu    = "1"
