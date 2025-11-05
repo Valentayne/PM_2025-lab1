@@ -82,7 +82,6 @@ module "frontend" {
   project_id        = var.project_id
   region            = var.region
   nginx_port        = var.nginx_port
-  backend_url       = module.backend.backend_url
   artifact_registry = module.network.artifact_registry_url
 
   depends_on = [

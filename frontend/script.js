@@ -2,8 +2,7 @@ async function fetchData() {
   const name = document.getElementById("nameInput").value;
   if (!name) return;
 
-  const backend = window.BACKEND_URL || "";
-  const res = await fetch(`${backend}/api/nameinfo?name=${name}`);
+  const res = await fetch(`https://backend-283374352371.europe-central2.run.app/api/nameinfo?name=${name}`);
 
   if (!res.ok) {
     document.getElementById("result").innerHTML = `<p style="color:red;">Server error (${res.status})</p>`;
