@@ -109,6 +109,10 @@ def get_data():
 @app.route("/health", methods=["GET"])
 def health():
     return "OK", 200
+@app.route("/init-db", methods=["POST"])
+def init_route():
+    init_db()
+    return "DB initialized!", 200
 
 
 # if __name__ == "__main__":

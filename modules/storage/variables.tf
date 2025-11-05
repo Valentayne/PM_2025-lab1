@@ -8,6 +8,7 @@ variable "region" {
 
 variable "db_name" {
   type = string
+  default = "name_affiliation"
 }
 
 variable "db_user" {
