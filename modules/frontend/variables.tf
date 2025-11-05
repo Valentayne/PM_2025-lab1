@@ -17,7 +17,3 @@ variable "backend_url" {
 variable "artifact_registry" {
   type = string
 }
-
-variable "backend_port" {
-  type = number
-}

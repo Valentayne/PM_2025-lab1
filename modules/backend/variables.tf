@@ -6,10 +6,6 @@ variable "region" {
   type = string
 }
 
-variable "backend_port" {
-  type = number
-}
-
 variable "db_name" {
   type = string
 }

@@ -33,9 +33,6 @@ resource "google_cloud_run_service" "backend" {
           value = var.db_host
         }
 
-        ports {
-          container_port = var.backend_port
-        }
       }
     }
   }
