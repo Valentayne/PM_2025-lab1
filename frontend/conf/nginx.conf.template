@@ -1,47 +1,67 @@
+# =============================
+# Nginx main configuration
+# =============================
 events {
     worker_connections 1024;
 }
 
 http {
-    include /etc/nginx/mime.types;
-    default_type application/octet-stream;
-    
-    # Resolver для DNS в Cloud Run
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    # DNS resolver for Cloud Run
     resolver 8.8.8.8 8.8.4.4 valid=300s;
     resolver_timeout 5s;
-    
+
+    # =============================
+    # Rate limiting for API
+    # =============================
+    limit_req_zone $binary_remote_addr zone=api_zone:10m rate=5r/s;
+
     server {
         listen ${PORT};
         server_name localhost;
-        
-        # HTML файли - без кешування
+
+        # -----------------------------
+        # Static files configuration
+        # -----------------------------
+
+        # HTML files - no caching
         location ~* \.html$ {
             root /usr/share/nginx/html;
             add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate";
             add_header Pragma "no-cache";
             expires 0;
         }
-        
-        # CSS та JS - короткий кеш
+
+        # CSS and JS - short caching
         location ~* \.(css|js)$ {
             root /usr/share/nginx/html;
             add_header Cache-Control "no-cache, must-revalidate";
             expires 1h;
         }
-        
+
+        # Images - long caching
         location ~* \.(jpg|jpeg|png|gif|ico|svg|webp)$ {
             root /usr/share/nginx/html;
             expires 7d;
             add_header Cache-Control "public, immutable";
         }
-        
+
+        # Default route for SPA
         location / {
             root /usr/share/nginx/html;
             index index.html;
             try_files $uri $uri/ /index.html;
         }
-        
+
+        # -----------------------------
+        # API proxy configuration
+        # -----------------------------
         location /api/ {
+            # Rate limiting
+            limit_req zone=api_zone burst=10 nodelay;
+
             proxy_pass https://backend-283374352371.europe-central2.run.app/api/;
             proxy_http_version 1.1;
             proxy_set_header Host $host;
@@ -49,14 +69,21 @@ http {
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
             proxy_set_header Connection "";
-            
+
             # Timeout settings
             proxy_connect_timeout 60s;
             proxy_send_timeout 60s;
             proxy_read_timeout 60s;
+
+            # Optional: increase buffer size if responses are large
+            proxy_buffer_size 128k;
+            proxy_buffers 4 256k;
+            proxy_busy_buffers_size 256k;
         }
-        
+
+        # -----------------------------
         # Health check endpoint
+        # -----------------------------
         location /health {
             access_log off;
             return 200 "healthy\n";
