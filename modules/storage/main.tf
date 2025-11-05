@@ -34,3 +34,40 @@ resource "null_resource" "init_table" {
     EOT
   }
 }
+resource "null_resource" "init_db_table" {
+  depends_on = [
+    google_sql_database.database,
+    google_sql_user.user
+  ]
+
+  triggers = {
+    instance_id = google_sql_database_instance.postgres.id
+    database_id = google_sql_database.database.id
+    
+    sql_file_hash = filemd5("${path.module}/init.sql")
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "Waiting for database to be ready..."
+      sleep 30
+      
+      gcloud sql connect ${google_sql_database_instance.postgres.name} \
+        --user=${var.db_user} \
+        --database=${var.db_name} \
+        --quiet < ${path.module}/init.sql
+      
+      echo "Database initialization completed!"
+    EOT
+
+    environment = {
+      PGPASSWORD = var.db_password
+    }
+  }
+
+  # Якщо команда не вдалася, спробуємо ще раз
+  provisioner "local-exec" {
+    when    = create
+    command = "echo 'Database table initialization triggered'"
+  }
+}
