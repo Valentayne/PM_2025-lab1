@@ -28,7 +28,7 @@ resource "google_cloud_run_v2_service" "frontend" {
       resources {
         limits = {
           cpu    = "1"
-          memory = "256Mi"
+          memory = "512Mi"
         }
       }
       
@@ -56,7 +56,6 @@ resource "google_cloud_run_v2_service" "frontend" {
   }
 }
 
-# Публічний доступ до Frontend
 resource "google_cloud_run_v2_service_iam_member" "frontend_public" {
   name     = google_cloud_run_v2_service.frontend.name
   location = google_cloud_run_v2_service.frontend.location

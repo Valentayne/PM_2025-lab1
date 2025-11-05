@@ -1,7 +1,7 @@
 {
   "version": 4,
   "terraform_version": "1.12.2",
-  "serial": 85,
+  "serial": 84,
   "lineage": "2d232241-0d5d-9c50-da90-07a9ff633baa",
   "outputs": {},
   "resources": [
@@ -172,6 +172,38 @@
           "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
           "dependencies": [
             "google_project_service.required_apis"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.network",
+      "mode": "managed",
+      "type": "google_service_networking_connection",
+      "name": "private_vpc_connection",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "deletion_policy": null,
+            "id": "projects%2Fdeploy-lab1-sample%2Fglobal%2Fnetworks%2Fprivate-network:servicenetworking.googleapis.com",
+            "network": "projects/deploy-lab1-sample/global/networks/private-network",
+            "peering": "servicenetworking-googleapis-com",
+            "reserved_peering_ranges": [
+              "private-ip-address"
+            ],
+            "service": "servicenetworking.googleapis.com",
+            "timeouts": null,
+            "update_on_creation_fail": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6NjAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "google_project_service.required_apis",
+            "module.network.google_compute_global_address.private_ip_address",
+            "module.network.google_compute_network.private_network"
           ]
         }
       ]
