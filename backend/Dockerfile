@@ -6,8 +6,6 @@ COPY backend/requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir gunicorn
 
-COPY backend/ .
-
 FROM python:3.13-alpine
 
 WORKDIR /app
