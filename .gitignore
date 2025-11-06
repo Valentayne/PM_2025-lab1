@@ -3,6 +3,5 @@ Lib/
 Scripts/
 pyvenv.cfg
 .vscode/
-.env
 terraform.tfvars
 .terraform/
